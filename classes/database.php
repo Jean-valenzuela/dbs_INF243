@@ -224,8 +224,122 @@ class database{
     ")->fetchAll();
 
        }
-}
 
+
+       function recentLoans(){
+        $con = $this->opencon();
+        return $con->query("SELECT 
+	loan.loan_id,
+    CONCAT(borrowers.borrower_firstname, ' ', borrowers.borrower_lastname) AS borrower,
+    loan.loan_status,
+    loan.loan_date,
+    users.username AS processed_by_user
+    
+    FROM loan
+    
+    JOIN borrowers ON loan.borrower_id=borrowers.borrower_id
+    JOIN users ON loan.processed_by_user_id = users.user_id
+    
+    GROUP BY 1
+    
+        ")->fetchAll();
+       }
+
+
+       function borrowerList(){
+        $con = $this->opencon();
+        return $con->query("SELECT
+
+	borrowers.borrower_id,
+    CONCAT(borrowers.borrower_firstname, ' ', borrowers.borrower_lastname) AS borrower_name,
+    borrowers.borrower_email,
+    
+    CASE 
+     WHEN borrowers.is_active = 1 THEN 'YES'
+     ELSE 'NO'
+     END AS borrower_active, 
+     
+    CASE
+    WHEN users.is_active = 1 THEN 'YES'
+    ELSE 'NO'
+    END AS user_active
+    
+    FROM borrowers
+    
+    JOIN borroweruser ON borrowers.borrower_id = borroweruser.borrower_id
+    JOIN users ON borroweruser.user_id = users.user_id
+    
+    
+    GROUP BY 1
+    
+    ")->fetchAll();
+    }
+
+    function totalBooks(){
+        $con = $this->opencon();
+        return $con->query("SELECT
+
+	COUNT(books.book_id) AS total_books
+    
+    FROM books
+
+    
+    ")->fetchAll();
+    }
+
+    function totalCopies(){
+        $con = $this->opencon();
+        return $con->query("SELECT
+
+	COUNT(bookcopy.copy_id) AS total_copies
+    
+    FROM bookcopy
+
+    
+    ")->fetchAll();
+    }
+
+    function openLoans(){
+        $con = $this->opencon();
+        return $con->query("SELECT
+
+	COUNT(loan.loan_id) AS open_loans
+    
+    FROM loan
+    
+    WHERE loan.loan_status = 'OPEN'
+
+    
+    ")->fetchAll();
+    }
+
+    function overDue(){
+        $con = $this->opencon();
+        return $con->query("SELECT
+
+	COUNT(CASE 
+              WHEN DATEDIFF(loanitem.li_duedate, CURRENT_DATE) < 0 
+              THEN 1 
+         END) AS overdue_count
+	
+    FROM loan
+
+	JOIN loanitem ON loan.loan_id = loanitem.loan_id
+	
+    WHERE loan.loan_status = 'OPEN'
+
+    
+    ")->fetchAll();
+    }
+
+    function viewBorrowers(){
+        $con = $this->opencon();
+        return $con->query("SELECT * from Borrowers")->fetchAll();
+
+    }
+
+    
+}
 //opencon - open connection
 //dbs_app - name ng database sa xampp
 

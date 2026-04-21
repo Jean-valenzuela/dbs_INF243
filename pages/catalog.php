@@ -1,3 +1,11 @@
+<?php
+require_once('../classes/database.php');
+
+$con = new database();
+
+?>
+
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,15 +19,15 @@
 <body>
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-semibold" href="catalog.html">Library Catalog</a>
+    <a class="navbar-brand fw-semibold" href="catalog.php">Library Catalog</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navCatalog">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div id="navCatalog" class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto gap-lg-1">
-        <li class="nav-item"><a class="nav-link active" href="catalog.html">Catalog</a></li>
-        <li class="nav-item"><a class="nav-link" href="admin-dashboard.html">Admin</a></li>
-        <li class="nav-item"><a class="nav-link" href="borrower-dashboard.html">Borrower</a></li>
+        <li class="nav-item"><a class="nav-link active" href="catalog.php">Catalog</a></li>
+        <li class="nav-item"><a class="nav-link" href="admin-dashboard.php">Admin</a></li>
+        <li class="nav-item"><a class="nav-link" href="borrower-dashboard.php">Borrower</a></li>
       </ul>
       <a class="btn btn-sm btn-outline-secondary" href="login.html">Login</a>
     </div>
@@ -65,30 +73,23 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Noli Me Tangere</td>
-            <td>9789710810736</td>
-            <td>1887</td>
-            <td>National Book Store</td>
-            <td>3</td>
-            <td><span class="badge text-bg-success">2</span></td>
-          </tr>
-          <tr>
-            <td>Smaller and Smaller Circles</td>
-            <td>9789712721768</td>
-            <td>2002</td>
-            <td>Ateneo de Manila University Press</td>
-            <td>2</td>
-            <td><span class="badge text-bg-warning">1</span></td>
-          </tr>
-          <tr>
-            <td>Dekada ’70</td>
-            <td>9789712712346</td>
-            <td>1983</td>
-            <td>Ateneo de Manila University Press</td>
-            <td>2</td>
-            <td><span class="badge text-bg-success">1</span></td>
-          </tr>
+          
+          <?php
+
+            $viewCopies = $con->viewCopies();
+            foreach($viewCopies as $vw){
+          
+          echo '<tr>';
+            echo '<td>'.$vw['book_title']. '</td>';
+            echo '<td>'.$vw['book_isbn']. '</td>';
+            echo '<td>'.$vw['book_publication_year']. '</td>';
+            echo '<td>'.$vw['book_publisher']. '</td>';
+            echo '<td>'.$vw['Copies']. '</td>';
+            echo '<td><span class="badge text-bg-success">'.$vw['Available_copies'].'</span></td>';
+            
+          echo '</tr>';
+        }
+        ?>
         </tbody>
       </table>
     </div>

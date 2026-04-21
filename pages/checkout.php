@@ -1,3 +1,11 @@
+<?php
+require_once('../classes/database.php');
+
+$con = new database();
+
+$viewBorrowers = $con->viewBorrowers();
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,9 +19,9 @@
 <body>
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-semibold" href="admin-dashboard.html">Library Admin</a>
+    <a class="navbar-brand fw-semibold" href="admin-dashboard.php">Library Admin</a>
     <div class="ms-auto d-flex gap-2">
-      <a class="btn btn-sm btn-outline-secondary" href="admin-dashboard.html">Back</a>
+      <a class="btn btn-sm btn-outline-secondary" href="admin-dashboard.php">Back</a>
       <a class="btn btn-sm btn-outline-secondary" href="login.html">Logout</a>
     </div>
   </div>
@@ -33,11 +41,11 @@
               <label class="form-label">Borrower</label>
               <select class="form-select" name="borrower_id" required>
                 <option value="">Select borrower</option>
-                <option value="1">Juan Dela Cruz</option>
-                <option value="2">Maria Santos</option>
-                <option value="3">Mark Reyes</option>
-                <option value="4">Ana Bautista</option>
-                <option value="6">Grace Mendoza</option>
+                <?php
+                foreach($viewBorrowers as $borrowers){
+                  echo '<option value="'.$borrowers['borrower_id'].'"> '.$borrowers['borrower_firstname']. ' '.$borrowers['borrower_lastname']. '</option>';
+                }
+              ?>
               </select>
             </div>
 

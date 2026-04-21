@@ -95,16 +95,16 @@ if(isset($_POST['add_address'])){
 <body>
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-semibold" href="admin-dashboard.html">Library Admin</a>
+    <a class="navbar-brand fw-semibold" href="admin-dashboard.php">Library Admin</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navBorrowersAdmin">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div id="navBorrowersAdmin" class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto gap-lg-1">
-        <li class="nav-item"><a class="nav-link" href="admin-dashboard.html">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="admin-dashboard.php">Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" href="books.php">Books</a></li>
         <li class="nav-item"><a class="nav-link active" href="borrowers.php">Borrowers</a></li>
-        <li class="nav-item"><a class="nav-link" href="checkout.html">Checkout</a></li>
+        <li class="nav-item"><a class="nav-link" href="checkout.php">Checkout</a></li>
         <li class="nav-item"><a class="nav-link" href="return.html">Return</a></li>
       </ul>
       <div class="d-flex align-items-center gap-2">
@@ -144,30 +144,25 @@ if(isset($_POST['add_address'])){
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td>Juan Dela Cruz</td>
-                <td>juan.delacruz@samplemail.com</td>
-                <td><span class="badge text-bg-success">Yes</span></td>
-                <td><span class="badge text-bg-primary">Linked</span></td>
-                <td><span class="badge text-bg-success">Yes</span></td>
-                <td class="text-end">
-                  <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resetPassModal">Reset Password</button>
-                  <button class="btn btn-sm btn-outline-secondary">Toggle Active</button>
-                </td>
-              </tr>
-              <tr>
-                <td>5</td>
-                <td>Paolo Garcia</td>
-                <td>paolo.garcia@samplemail.com</td>
-                <td><span class="badge text-bg-secondary">No</span></td>
-                <td><span class="badge text-bg-primary">Linked</span></td>
-                <td><span class="badge text-bg-secondary">No</span></td>
-                <td class="text-end">
-                  <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resetPassModal">Reset Password</button>
-                  <button class="btn btn-sm btn-outline-secondary">Toggle Active</button>
-                </td>
-              </tr>
+
+            <?php
+
+              $borrowerList = $con->borrowerList();
+            foreach($borrowerList as $bl){
+              echo '<tr>';
+              echo '<td>'.$bl['borrower_id']. '</td>';
+              echo '<td>'.$bl['borrower_name']. '</td>';
+              echo '<td>'.$bl['borrower_email']. '</td>';
+              echo '<td><span class="badge text-bg-success">'.$bl['borrower_active'].'</span></td>';
+              echo '<td><span class="badge text-bg-primary">'. 'Linked'.'</span></td>';
+              echo '<td><span class="badge text-bg-success">'.$bl['user_active'].'</span></td>';
+               echo '<td class="text-end">';
+               echo   '<button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#resetPassModal">Reset Password</button>';
+                echo ' <button class="btn btn-sm btn-outline-secondary">Toggle Active</button>';
+                echo '</td>';
+              echo '</tr>';
+            }
+            ?>
             </tbody>
           </table>
         </div>

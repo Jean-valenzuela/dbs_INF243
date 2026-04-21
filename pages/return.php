@@ -1,3 +1,10 @@
+<?php
+require_once('../classes/database.php');
+
+$con = new database();
+
+
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,9 +18,9 @@
 <body>
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
   <div class="container">
-    <a class="navbar-brand fw-semibold" href="admin-dashboard.html">Library Admin</a>
+    <a class="navbar-brand fw-semibold" href="admin-dashboard.php">Library Admin</a>
     <div class="ms-auto d-flex gap-2">
-      <a class="btn btn-sm btn-outline-secondary" href="admin-dashboard.html">Back</a>
+      <a class="btn btn-sm btn-outline-secondary" href="admin-dashboard.php">Back</a>
       <a class="btn btn-sm btn-outline-secondary" href="login.html">Logout</a>
     </div>
   </div>
@@ -43,7 +50,7 @@
       </div>
 
       <div class="col-12">
-        <button class="btn btn-primary" type="submit">Confirm Return</button>
+        <button name=return class="btn btn-primary" type="submit">Confirm Return</button>
       </div>
     </form>
   </div>
