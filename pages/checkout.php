@@ -4,6 +4,36 @@ require_once('../classes/database.php');
 $con = new database();
 
 $viewBorrowers = $con->viewBorrowers();
+
+$loanItemCreateStatus=null;
+$loanItemCreateMessage= ' '; 
+
+if(isset($_POST['create_loan'])){
+  // 1. collect and validate inputs from user
+    $copy_ids = $_POST['copy_id'];
+    $li_duedate  = $_POST['li_duedate'];
+    $condition_out = $_POST['condition_out'];
+    
+  
+  try{
+    $loan_item_id = $con->insertLoanItem($copy_ids, $li_duedate, $condition_out);
+    
+    $addressCreateStatus = 'success';
+    $addressCreateMessage = 'Loan created successfully.';
+    
+  
+  } catch(Exception $e){
+    $addressCreateStatus = 'error';
+    $addressCreateMessage = 'Error creating loan.';
+
+  }
+  
+  }
+
+
+
+
+
 ?>
 
 <!doctype html>
@@ -15,6 +45,7 @@ $viewBorrowers = $con->viewBorrowers();
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../bootstrap-5.3.3-dist/css/bootstrap.css">
+  <link rel="stylesheet" href="../sweetalert/dist/sweetalert2.css">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
@@ -43,7 +74,7 @@ $viewBorrowers = $con->viewBorrowers();
                 <option value="">Select borrower</option>
                 <?php
                 foreach($viewBorrowers as $borrowers){
-                  echo '<option value="'.$borrowers['borrower_id'].'"> '.$borrowers['borrower_firstname']. ' '.$borrowers['borrower_lastname']. '</option>';
+                  echo '<option value="'.$borrowers['borrower_id'].'"> '.'['.$borrowers['borrower_id'].'] '.$borrowers['borrower_firstname']. ' '.$borrowers['borrower_lastname']. '</option>';
                 }
               ?>
               </select>
@@ -59,6 +90,7 @@ $viewBorrowers = $con->viewBorrowers();
               <label class="form-label">Copy IDs to Borrow (comma-separated)</label>
               <input class="form-control" name="copy_ids" placeholder="e.g., 102, 401" required>
               <div class="small-muted mt-1">In PHP: validate copy status is AVAILABLE and not currently on loan.</div>
+              
             </div>
 
             <div class="col-12 col-md-6">
@@ -76,7 +108,7 @@ $viewBorrowers = $con->viewBorrowers();
           </div>
 
           <hr class="my-4">
-          <button class="btn btn-primary" type="submit">Create Loan</button>
+          <button name="create_loan" class="btn btn-primary" type="submit">Create Loan</button>
         </form>
       </div>
     </div>
@@ -95,6 +127,31 @@ $viewBorrowers = $con->viewBorrowers();
   </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+<script src="../sweetalert/dist/sweetalert2.js"></script>
+
+<script>
+  const loanItemCreateStatus = <?php echo json_encode($loanItemCreateStatus)?>;
+  const loanItemCreateMessage = <?php echo json_encode($loanItemCreateMessage)?>;
+
+  if(loanItemCreateStatus == 'success'){
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: loanItemCreateMessage,
+      confirmButtonText: 'Ok'
+    });
+
+  }else(loanItemCreateStatus == 'error'){
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: loanItemCreateMessage,
+          confirmButtonText: 'Ok'
+        });
+      }
+
+</script>
+ 
 </body>
 </html>

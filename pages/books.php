@@ -15,6 +15,8 @@ $assignCreateStatus = null;
 $assignCreateMessage = ' ';
 $genreCreateStatus = null; 
 $genreCreateMessage = ' ';
+$bookUpdateCreateStatus = null;
+$bookUpdateCreateMessage = ' ';
 
 if(isset($_POST['save_book'])){
 
@@ -92,7 +94,27 @@ if(isset($_POST['assign_genre'])){
 
 }
 
+if(isset($_POST['update_changes'])){
+   $book_id = $_POST['book_id'];
+   $title = $_POST['book_title'];
+   $isbn = $_POST['book_isbn'];
+   $year = $_POST['book_publication_year'];
+   $publisher = $_POST['book_publisher'];
+
+   try{
+  $con->updateBook($book_id, $title, $isbn, $year, $publisher);
+  $bookUpdateCreateStatus = 'success';
+  $bookUpdateCreateMessage = 'Saved Changes successfully.';
+}catch (Exception $e){
+  $bookUpdateCreateStatus = 'error';
+  $bookUpdateCreateMessage = 'Error updating.';
+}
+}
+
+
 ?>
+
+
 
 <!doctype html>
 <html lang="en">
@@ -237,7 +259,17 @@ if(isset($_POST['assign_genre'])){
             echo '<td>'.$vw['Copies']. '</td>';
             echo '<td>'.$vw['Available_copies']. '</td>';
             echo '<td class="text-end">';
-            echo '<button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editBookModal">Edit</button>';
+            echo'<div class="btn-group" roles="group">';
+
+            echo '<button class="btn btn-sm btn-outline-primary" 
+            data-bs-toggle="modal" data-bs-target="#editBookModal" 
+            data-book-id="'.$vw['book_id'].'"
+            data-book-title="'.$vw['book_title'].'"
+            data-book-isbn="'.$vw['book_isbn'].'"
+            data-book-publication-year="'.$vw['book_publication_year']. '"
+            data-book-publisher="'.$vw['book_publisher']. '">
+            
+            Edit</button>';
             echo' <button class="btn btn-sm btn-outline-danger">Delete</button>';
                 
             echo ' </td>';
@@ -337,19 +369,34 @@ if(isset($_POST['assign_genre'])){
       <div class="modal-body">
         <!-- Later in PHP: load existing values -->
         <form action="#" method="POST">
+          <!--<input type="hidden" class="form-control" name="book_id" id="edit_book_id">-->
+
+          <div class="mb-3">
+            <label class="form-label">Book ID</label>
+            <input class="form-control" name="book_id" id="edit_book_id" readonly>
+          </div>
+
           <div class="mb-3">
             <label class="form-label">Title</label>
-            <input class="form-control" value="Noli Me Tangere">
+            <input class="form-control" name="book_title" id="edit_book_title">
           </div>
+
           <div class="mb-3">
             <label class="form-label">ISBN</label>
-            <input class="form-control" value="9789710810736">
+            <input class="form-control" name="book_isbn" id="edit_book_isbn">
           </div>
+
+          <div class="mb-3">
+            <label class="form-label">Publication Year</label>
+            <input class="form-control" type="number" min="1500" max="2100" name="book_publication_year" id="edit_book_publication_year">
+          </div>
+
           <div class="mb-3">
             <label class="form-label">Publisher</label>
-            <input class="form-control" value="National Book Store">
+            <input class="form-control" name="book_publisher" id="edit_book_publisher">
           </div>
-          <button class="btn btn-primary w-100" type="button">Save Changes</button>
+
+          <button name="update_changes" class="btn btn-primary w-100" type="submit">Save Changes</button>
         </form>
       </div>
     </div>
@@ -371,6 +418,8 @@ if(isset($_POST['assign_genre'])){
   const assigncreateMessage = <?php echo json_encode($assignCreateMessage)?>;
   const genrecreateStatus = <?php echo json_encode($genreCreateStatus)?>;
   const genrecreateMessage = <?php echo json_encode($genreCreateMessage)?>;
+  const bookUpdateCreateStatus = <?php echo json_encode($bookUpdateCreateStatus)?>;
+  const bookUpdateCreateMessage = <?php echo json_encode($bookUpdateCreateMessage)?>;
 
   if(createStatus == 'success'){
     Swal.fire({
@@ -423,7 +472,7 @@ if(isset($_POST['assign_genre'])){
         });
       }
 
-      if(genrecreateStatus == 'success'){
+      else if(genrecreateStatus == 'success'){
     Swal.fire({
       icon: 'success',
       title: 'Success',
@@ -439,10 +488,51 @@ if(isset($_POST['assign_genre'])){
           confirmButtonText: 'Ok'
         });
       }
+      
+      if(bookUpdateCreateStatus == 'success'){
+  Swal.fire({
+  icon: 'success',
+  title: 'Success',
+  text: bookUpdateCreateMessage,
+  confirmButtonText: 'OK'
+
+});
+
+} else if(bookUpdateCreateStatus == 'error'){
+  Swal.fire({
+  icon: 'error',
+  title: 'Error',
+  text: bookUpdateCreateMessage,
+  confirmButtonText: 'OK'
+
+});
+
+}
+
+
 </script>
 
 
+<script>
+    const editBookModel = document.getElementById('editBookModal');
 
+    editBookModel.addEventListener('show.bs.modal', function(event){
+    const btn = event.relatedTarget;
+    if (!btn) return;
+
+    document.getElementById('edit_book_id').value = btn.getAttribute('data-book-id') || '';
+
+    document.getElementById('edit_book_title').value = btn.getAttribute('data-book-title') || '';
+
+    document.getElementById('edit_book_isbn').value = btn.getAttribute('data-book-isbn') || '';
+
+    document.getElementById('edit_book_publication_year').value = btn.getAttribute('data-book-publication-year') || '';
+
+    document.getElementById('edit_book_publisher').value = btn.getAttribute('data-book-publisher') || '';
+
+
+    } );
+</script>
 
 
 </body>

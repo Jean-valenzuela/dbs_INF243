@@ -318,15 +318,15 @@ class database{
         return $con->query("SELECT
 
 	COUNT(CASE 
-              WHEN DATEDIFF(loanitem.li_duedate, CURRENT_DATE) < 0 
-              THEN 1 
+              WHEN loanitem.li_returned_at IS NOT NULL AND DATEDIFF(loanitem.li_returned_at, loanitem.li_duedate) > 0 THEN 1 
+              WHEN loanitem.li_returned_at IS NULL AND loanitem.li_duedate < CURRENT_DATE THEN 1
          END) AS overdue_count
 	
     FROM loan
 
 	JOIN loanitem ON loan.loan_id = loanitem.loan_id
 	
-    WHERE loan.loan_status = 'OPEN'
+	
 
     
     ")->fetchAll();
@@ -337,6 +337,68 @@ class database{
         return $con->query("SELECT * from Borrowers")->fetchAll();
 
     }
+
+
+    function updateBook($book_id, $title, $isbn, $year, $publisher)
+{
+    $con = $this->opencon();
+ 
+    try {
+        $con->beginTransaction();
+ 
+        $stmt = $con->prepare("
+            UPDATE Books
+            SET book_title = ?,
+                book_isbn = ?,
+                book_publication_year = ?,
+                book_publisher = ?
+            WHERE book_id = ?
+        ");
+ 
+        $stmt->execute([$title, $isbn, $year, $publisher, $book_id]);
+ 
+        $con->commit();
+        return true; // Successfully updated
+ 
+    } catch (PDOException $e) {
+        if ($con->inTransaction()) {
+            $con->rollBack();
+        }
+        throw $e;
+    }
+}
+
+
+
+
+
+
+
+
+
+  /* function insertLoanItem($copy_ids, $li_duedate, $condition_out){
+
+        $con = $this->opencon();
+           
+           try{
+               $con->beginTransaction();
+               $stmt = $con->prepare('INSERT INTO bookgenre(copy_id, li_duedate, condition_out) VALUES(?,?,?)');
+               $stmt->execute([$copy_ids, $li_duedate, $condition_out]);
+               $loan_item_id = $con->lastInsertId();
+               $con->commit();
+               return $loan_item_id;
+           
+        }catch(PDOException $e){
+           if($con->inTransaction()){
+               $con->rollBack();
+           }
+           throw $e;
+   
+       }
+   
+       } */
+
+    
 
     
 }
