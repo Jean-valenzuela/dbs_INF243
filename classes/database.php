@@ -178,7 +178,13 @@ class database{
 
        function viewGenre(){
         $con = $this->opencon();
-        return $con->query("SELECT * from Genre")->fetchAll();
+        return $con->query("SELECT *
+
+        FROM genre
+
+        order BY genre_id ASC
+
+        ")->fetchAll();
 
     }
 
@@ -368,6 +374,45 @@ class database{
     }
 }
 
+function insertAuthor($author_firstname, $author_lastname, $author_birth_year, $author_nationality){
+        $con = $this->opencon();
+        
+        try{
+            $con->beginTransaction();
+            $stmt = $con->prepare('INSERT INTO Author (author_firstname, author_lastname, author_birth_year, author_nationality) VALUES (?,?,?,?)');
+            $stmt->execute([$author_firstname, $author_lastname, $author_birth_year, $author_nationality]);
+            $author_id = $con->lastInsertId();
+            $con->commit();
+            return $author_id;
+
+    }catch(PDOException $e){
+        if($con->inTransaction()){
+            $con->rollBack();
+        }
+        throw $e;
+    }
+
+    }
+
+function insertGenre($genre_name){
+        $con = $this->opencon();
+        
+        try{
+            $con->beginTransaction();
+            $stmt = $con->prepare('INSERT INTO Genre (genre_name) VALUES (?)');
+            $stmt->execute([$genre_name]);
+            $genre_id = $con->lastInsertId();
+            $con->commit();
+            return $genre_id;
+
+    }catch(PDOException $e){
+        if($con->inTransaction()){
+            $con->rollBack();
+        }
+        throw $e;
+    }
+
+    }
 
 
 

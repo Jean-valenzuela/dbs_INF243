@@ -26,6 +26,7 @@ $con = new database();
     <div id="navAdmin" class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto gap-lg-1">
         <li class="nav-item"><a class="nav-link active" href="admin-dashboard.php">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link active" href="authors-genres.php">Author-Genre</a></li>
         <li class="nav-item"><a class="nav-link" href="books.php">Books</a></li>
         <li class="nav-item"><a class="nav-link" href="borrowers.php">Borrowers</a></li>
         <li class="nav-item"><a class="nav-link" href="checkout.php">Checkout</a></li>
@@ -131,11 +132,12 @@ $con = new database();
               $recentLoans = $con->recentLoans();
               foreach($recentLoans as $rl){
 
+              
                echo '<tr>';
                echo '<td>'.$rl['loan_id']. '</td>';
                echo '<td>'.$rl['borrower']. '</td>';
                echo '<td><span class="badge text-bg-warning">'.$rl['loan_status'].'</span></td>';
-               echo '<td>'.$rl['loan_date']. '</td>';
+               echo '<td><span class="badge text-bg-primary">'.$rl['loan_date']. '</span></td>';
                echo '<td>'.$rl['processed_by_user']. '</td>';
                echo '</tr>';
 
