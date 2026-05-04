@@ -223,7 +223,7 @@ class database{
     
     FROM books
     
-    JOIN bookcopy ON books.book_id = bookcopy.book_id
+    LEFT JOIN bookcopy ON books.book_id = bookcopy.book_id
     
     GROUP BY 1
 
@@ -414,6 +414,37 @@ function insertGenre($genre_name){
 
     }
 
+    function deletebooks($book_id){
+        $con = $this->opencon();
+        
+        try{
+            $con->beginTransaction();
+
+            $stmtCopies = $con->prepare("DELETE FROM BookCopy WHERE book_id = ? ");
+            $stmtCopies->execute([$book_id]);
+
+            $stmtBG = $con->prepare("DELETE FROM BookGenre WHERE book_id = ? ");
+            $stmtBG->execute([$book_id]);
+
+            $stmtBA = $con->prepare("DELETE FROM BookAuthors WHERE book_id = ? ");
+            $stmtBA->execute([$book_id]);
+
+            $stmtBook = $con->prepare("DELETE FROM Books WHERE book_id = ? ");
+            $stmtBook->execute([$book_id]);
+
+            $con->commit();
+            return true;
+
+    }catch(PDOException $e){
+        if($con->inTransaction()){
+            $con->rollBack();
+        }
+        throw $e;
+    }
+
+    }
+}
+
 
 
 
@@ -446,7 +477,7 @@ function insertGenre($genre_name){
     
 
     
-}
+
 //opencon - open connection
 //dbs_app - name ng database sa xampp
 
