@@ -443,6 +443,58 @@ function insertGenre($genre_name){
     }
 
     }
+
+    function deleteAuthor($author_id){
+        $con = $this->opencon();
+        
+        try{
+            $con->beginTransaction();
+
+            $stmtBookAuthor = $con->prepare("DELETE FROM bookauthors WHERE author_id = ? ");
+            $stmtBookAuthor->execute([$author_id]);
+
+            $stmtAuthor = $con->prepare("DELETE FROM Author WHERE author_id = ? ");
+            $stmtAuthor -> execute([$author_id]);
+
+            $con->commit();
+            return true;
+
+    }catch(PDOException $e){
+        if($con->inTransaction()){
+            $con->rollBack();
+        }
+        throw $e; 
+    }
+
+    }
+
+
+    function deleteGenre($genre_id){
+        $con = $this->opencon();
+        
+        try{
+            $con->beginTransaction();
+
+            $stmtBookGenre = $con->prepare("DELETE FROM bookgenre WHERE genre_id = ? ");
+            $stmtBookGenre->execute([$genre_id]);
+
+            $stmtGenre = $con->prepare("DELETE FROM Genre WHERE genre_id = ? ");
+            $stmtGenre -> execute([$genre_id]);
+
+            $con->commit();
+            return true;
+
+    }catch(PDOException $e){
+        if($con->inTransaction()){
+            $con->rollBack();
+        }
+        throw $e;
+    }
+
+    }
+
+
+
 }
 
 
