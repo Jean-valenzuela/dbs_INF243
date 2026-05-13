@@ -11,6 +11,10 @@ $authorCreateStatus = null;
 $authorCreateMessage = ' ';
 $AddgenreCreateStatus = null; 
 $AddgenreCreateMessage = ' ';
+$UpdateAuthorCreateStatus = null;
+$UpdateAuthorCreateMessage = ' ';
+$UpdateGenreCreateStatus = null;
+$UpdateGenreCreateMessage = ' ';
 
 if(isset($_POST['save_author'])){
 
@@ -51,6 +55,25 @@ if(isset($_POST['save_genre'])){
 
 }
 
+if(isset($_POST['edit_author'])){
+   $author_id = $_POST['author_id'];
+   $author_firstname = $_POST['author_firstname'];
+   $author_lastname = $_POST['author_lastname'];
+   $author_birth_year = $_POST['author_birth_year'];
+   $author_nationality = $_POST['author_nationality'];
+
+   try{
+  $con->updateAuthor($author_id, $author_firstname, $author_lastname, $author_birth_year, $author_nationality);
+  $UpdateAuthorCreateStatus = 'success';
+  $UpdateAuthorCreateMessage = 'Saved Changes successfully.';
+}catch (Exception $e){
+  $UpdateAuthorCreateStatus = 'error';
+  $UpdateAuthorCreateMessage = 'Error updating.';
+}
+}
+
+
+
 if(isset($_POST['delete_author'])){
 
   $author_id = $_POST['author_id'];
@@ -69,6 +92,20 @@ if(isset($_POST['delete_author'])){
     $error_delete_author = 'Error deleting author.';
 
   }
+}
+
+if(isset($_POST['edit_genre'])){
+   $genre_id = $_POST['genre_id'];
+   $genre_name = $_POST['genre_name'];
+
+   try{
+  $con->updateGenre($genre_id, $genre_name);
+  $UpdateGenreCreateStatus = 'success';
+  $UpdateGenreCreateMessage = 'Saved Changes successfully.';
+}catch (Exception $e){
+  $UpdateGenreCreateStatus = 'error';
+  $UpdateGenreCreateMessage = 'Error updating genre.';
+}
 }
 
 if(isset($_POST['delete_genre'])){
@@ -253,7 +290,21 @@ if(isset($_POST['delete_genre'])){
                 <td><?php echo $viewAuthors['author_lastname'] ?></td>
                 <td><?php echo $viewAuthors['author_birth_year'] ?></td>
                 <td><?php echo $viewAuthors['author_nationality'] ?></td>
-                <td><?php echo '<button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAuthorModal"
+                <td>
+
+                <?php echo '<button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editAuthorModal"
+                
+                data-author-id="' . $viewAuthors['author_id'] . '"
+                data-author-firstname="' . $viewAuthors['author_firstname'] . '"
+                data-author-lastname="' . $viewAuthors['author_lastname'] . '"
+                data-author-birth-year="' . $viewAuthors['author_birth_year'] . '"
+                data-author-nationality="' . $viewAuthors['author_nationality'] . '"
+
+                
+                >Edit</button>' ?>
+                  
+                  
+                <?php echo '<button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAuthorModal"
                 
                 data-author-id="' . $viewAuthors['author_id'] . '"
                 data-author-name="' . $viewAuthors['author_firstname'] . ' ' . $viewAuthors['author_lastname'] . '"
@@ -291,7 +342,15 @@ if(isset($_POST['delete_genre'])){
               <tr>
                 <td><?php echo $viewGenre['genre_id'] ?></td>
                 <td><?php echo $viewGenre['genre_name'] ?></td>
-                <td><?php echo '<button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteGenreModal"
+                <td>
+                <?php echo '<button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editGenreModal"
+                
+                data-genre-id="' . $viewGenre['genre_id'] . '"
+                data-genre-name="' . $viewGenre['genre_name'] . '"  
+                
+                >Edit</button>' ?>   
+                  
+                <?php echo '<button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteGenreModal"
                 
                 data-genre-id="' . $viewGenre['genre_id'] . '"
                 data-genre-name="' . $viewGenre['genre_name'] . '"  
@@ -310,6 +369,50 @@ if(isset($_POST['delete_genre'])){
     </div>
   </div>
 
+<!--Edit Author Modal -->
+  <div class="modal fade" id="editAuthorModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Author</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Later in PHP: load existing values -->
+        <form action="#" method="POST">
+          <!--<input type="hidden" class="form-control" name="book_id" id="edit_book_id">-->
+
+          <div class="mb-3">
+            <label class="form-label">Author ID</label>
+            <input class="form-control" name="author_id" id="edit_author_id" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">First Name</label>
+            <input class="form-control" name="author_firstname" id="edit_author_firstname">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Last Name</label>
+            <input class="form-control" name="author_lastname" id="edit_author_lastname">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Birth Year</label>
+            <input class="form-control" type="number" min="1500" max="2100" name="author_birth_year" id="edit_author_birth_year">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Nationality</label>
+            <input class="form-control" name="author_nationality" id="edit_author_nationality">
+          </div>
+
+          <button name="edit_author" class="btn btn-primary w-100" type="submit">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Delete Author Modal -->
   <div class="modal fade" id="deleteAuthorModal" tabindex="-1" aria-hidden="true">
@@ -340,6 +443,35 @@ if(isset($_POST['delete_genre'])){
   </div>
 </div>
 
+<!--Edit Genre Modal -->
+  <div class="modal fade" id="editGenreModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Genre</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Later in PHP: load existing values -->
+        <form action="#" method="POST">
+          <!--<input type="hidden" class="form-control" name="book_id" id="edit_book_id">-->
+
+          <div class="mb-3">
+            <label class="form-label">Genre ID</label>
+            <input class="form-control" name="genre_id" id="edit_genre_id" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Genre Name</label>
+            <input class="form-control" name="genre_name" id="edit_genre_name">
+          </div>
+
+          <button name="edit_genre" class="btn btn-primary w-100" type="submit">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Delete Genre Modal -->
   <div class="modal fade" id="deleteGenreModal" tabindex="-1" aria-hidden="true">
@@ -381,6 +513,11 @@ if(isset($_POST['delete_genre'])){
   const authorCreateMessage = <?php echo json_encode($authorCreateMessage)?>;
   const AddgenreCreateStatus = <?php echo json_encode($AddgenreCreateStatus)?>;
   const AddgenreCreateMessage = <?php echo json_encode($AddgenreCreateMessage)?>;
+  const UpdateAuthorCreateStatus = <?php echo json_encode($UpdateAuthorCreateStatus)?>;
+  const UpdateAuthorCreateMessage = <?php echo json_encode($UpdateAuthorCreateMessage)?>;
+  const UpdateGenreCreateStatus = <?php echo json_encode($UpdateGenreCreateStatus)?>;
+  const UpdateGenreCreateMessage = <?php echo json_encode($UpdateGenreCreateMessage)?>;
+ 
 
 if(authorCreateStatus == 'success'){
     Swal.fire({
@@ -413,13 +550,62 @@ if(authorCreateStatus == 'success'){
           text: AddgenreCreateMessage,
           confirmButtonText: 'Ok'
         });
+  
+  }else if(UpdateAuthorCreateStatus == 'success'){
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: UpdateAuthorCreateMessage,
+      confirmButtonText: 'Ok'
+    });
+
+  }else if(UpdateAuthorCreateStatus == 'error'){
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: UpdateAuthorCreateMessage,
+          confirmButtonText: 'Ok'
+        });
+  
+  }else if(UpdateGenreCreateStatus == 'success'){
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: UpdateGenreCreateMessage,
+      confirmButtonText: 'Ok'
+    });
+
+  }else if(UpdateGenreCreateStatus == 'error'){
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: UpdateGenreCreateMessage,
+          confirmButtonText: 'Ok'
+        });
       }
-
-
-
 
 </script>
 
+<script>
+    const editAuthorModal = document.getElementById('editAuthorModal');
+
+    editAuthorModal.addEventListener('show.bs.modal', function(event){
+    const btn = event.relatedTarget;
+    if (!btn) return;
+
+    document.getElementById('edit_author_id').value = btn.getAttribute('data-author-id') || '';
+
+    document.getElementById('edit_author_firstname').value = btn.getAttribute('data-author-firstname') || '';
+
+    document.getElementById('edit_author_lastname').value = btn.getAttribute('data-author-lastname') || '';
+
+    document.getElementById('edit_author_birth_year').value = btn.getAttribute('data-author-birth-year') || '';
+
+    document.getElementById('edit_author_nationality').value = btn.getAttribute('data-author-nationality') || '';
+
+
+    } );
+</script>
 
 <script>
 
@@ -440,6 +626,22 @@ if(authorCreateStatus == 'success'){
 
   });
   
+</script>
+
+
+<script>
+    const editGenreModal = document.getElementById('editGenreModal');
+
+    editGenreModal.addEventListener('show.bs.modal', function(event){
+    const btn = event.relatedTarget;
+    if (!btn) return;
+
+    document.getElementById('edit_genre_id').value = btn.getAttribute('data-genre-id') || '';
+
+    document.getElementById('edit_genre_name').value = btn.getAttribute('data-genre-name') || '';
+
+
+    } );
 </script>
 
 <script>

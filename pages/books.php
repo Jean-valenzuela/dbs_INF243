@@ -602,9 +602,9 @@ if(isset($_POST['delete_books'])){
 
 
 <script>
-    const editBookModel = document.getElementById('editBookModal');
+    const editBookModal = document.getElementById('editBookModal');
 
-    editBookModel.addEventListener('show.bs.modal', function(event){
+    editBookModal.addEventListener('show.bs.modal', function(event){
     const btn = event.relatedTarget;
     if (!btn) return;
 

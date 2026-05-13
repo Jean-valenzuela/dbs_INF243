@@ -444,6 +444,35 @@ function insertGenre($genre_name){
 
     }
 
+    function updateAuthor($author_id, $author_firstname, $author_lastname, $author_birth_year, $author_nationality)
+    {
+    $con = $this->opencon();
+ 
+    try {
+        $con->beginTransaction();
+ 
+        $stmt = $con->prepare("
+            UPDATE Author
+            SET author_firstname = ?,
+                author_lastname = ?,
+                author_birth_year = ?,
+                author_nationality = ?
+            WHERE author_id = ?
+        ");
+ 
+        $stmt->execute([$author_firstname, $author_lastname, $author_birth_year, $author_nationality, $author_id]);
+ 
+        $con->commit();
+        return true; 
+ 
+    } catch (PDOException $e) {
+        if ($con->inTransaction()) {
+            $con->rollBack();
+        }
+        throw $e;
+    }
+    }
+
     function deleteAuthor($author_id){
         $con = $this->opencon();
         
@@ -468,6 +497,31 @@ function insertGenre($genre_name){
 
     }
 
+    function updateGenre($genre_id, $genre_name)
+    {
+    $con = $this->opencon();
+ 
+    try {
+        $con->beginTransaction();
+ 
+        $stmt = $con->prepare("
+            UPDATE Genre
+            SET genre_name = ?
+            WHERE genre_id = ?
+        ");
+ 
+        $stmt->execute([$genre_name, $genre_id]);
+ 
+        $con->commit();
+        return true; 
+ 
+    } catch (PDOException $e) {
+        if ($con->inTransaction()) {
+            $con->rollBack();
+        }
+        throw $e;
+    }
+    }
 
     function deleteGenre($genre_id){
         $con = $this->opencon();
