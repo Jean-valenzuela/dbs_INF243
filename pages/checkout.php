@@ -1,38 +1,49 @@
 <?php
 require_once('../classes/database.php');
-
 $con = new database();
 
-$viewBorrowers = $con->viewBorrowers();
+$activeBorrowers = $con->getActiveBorrowers();
+$availableCopies = $con->getAvailableCopies();
 
-$loanItemCreateStatus=null;
-$loanItemCreateMessage= ' '; 
+$checkoutStatus = null;
+$checkoutMessage = '';
 
-if(isset($_POST['create_loan'])){
-  // 1. collect and validate inputs from user
-    $copy_ids = $_POST['copy_id'];
-    $li_duedate  = $_POST['li_duedate'];
-    $condition_out = $_POST['condition_out'];
-    
-  
-  try{
-    $loan_item_id = $con->insertLoanItem($copy_ids, $li_duedate, $condition_out);
-    
-    $addressCreateStatus = 'success';
-    $addressCreateMessage = 'Loan created successfully.';
-    
-  
-  } catch(Exception $e){
-    $addressCreateStatus = 'error';
-    $addressCreateMessage = 'Error creating loan.';
+if (isset($_POST['create_loan'])) {
 
+  $borrower_id = $_POST['borrower_id'];
+  $processed_by_user_id = $_POST['processed_by_user_id'];
+  $copy_ids_input = $_POST['copy_ids'];
+  $li_duedate = $_POST['li_duedate'];
+  $condition_out = $_POST['condition_out'];
+
+  $copy_ids = array_map('trim', explode(',', $copy_ids_input));
+
+  $copy_ids = array_filter($copy_ids, function($id) {
+    return is_numeric($id) && $id > 0;
+  });
+
+  if (empty($copy_ids)) {
+    $checkoutStatus = 'error';
+    $checkoutMessage = 'Please provide at least one valid copy ID.';
+  } else {
+    try {
+      $loan_id = $con->createLoanWithItems(
+        $borrower_id,
+        $processed_by_user_id,
+        $copy_ids,
+        $li_duedate,
+        $condition_out
+      );
+
+      $checkoutStatus = 'success';
+      $checkoutMessage = 'Loan created successfully! (Loan ID: ' . $loan_id . ')';
+
+    } catch (Exception $e) {
+      $checkoutStatus = 'error';
+      $checkoutMessage = 'Error creating loan: ' . $e->getMessage();
+    }
   }
-  
-  }
-
-
-
-
+}
 
 ?>
 
@@ -57,6 +68,21 @@ if(isset($_POST['create_loan'])){
     </div>
   </div>
 </nav>
+<?php if (isset($checkoutStatus) && $checkoutStatus): ?>
+<div class="container py-3">
+
+  <div class="alert alert-<?php echo $checkoutStatus === 'success' ? 'success' : 'danger'; ?>">
+
+    <strong>
+      <?php echo $checkoutStatus === 'success' ? 'Success!' : 'Error!'; ?>
+    </strong>
+
+    <?php echo $checkoutMessage; ?>
+
+  </div>
+
+</div>
+<?php endif; ?>
 
 <main class="container py-4">
   <div class="row g-3">
@@ -66,23 +92,25 @@ if(isset($_POST['create_loan'])){
         <p class="small-muted mb-4">Create a Loan + LoanItems. Processor is required.</p>
 
         <!-- Later in PHP: action="../php/loans/create.php" method="POST" -->
-        <form action="#" method="POST">
+        <form action="" method="POST">
           <div class="row g-3">
             <div class="col-12 col-md-6">
               <label class="form-label">Borrower</label>
               <select class="form-select" name="borrower_id" required>
                 <option value="">Select borrower</option>
-                <?php
-                foreach($viewBorrowers as $borrowers){
-                  echo '<option value="'.$borrowers['borrower_id'].'"> '.'['.$borrowers['borrower_id'].'] '.$borrowers['borrower_firstname']. ' '.$borrowers['borrower_lastname']. '</option>';
-                }
-              ?>
+                <?php foreach ($activeBorrowers as $borrower): ?>
+                
+                  <option value="<?php echo $borrower['borrower_id']?>">
+                    <?php echo $borrower['borrower_name']?></option>
+
+                <?php endforeach; ?>
+                
               </select>
             </div>
 
             <div class="col-12 col-md-6">
               <label class="form-label">Processed By (User ID)</label>
-              <input class="form-control" name="processed_by_user_id" type="number" value="1" required>
+              <input class="form-control" name="processed_by_user_id" type="number" value="1" required readonly  >
               <div class="small-muted mt-1">Should be the logged-in ADMIN user_id.</div>
             </div>
 
@@ -108,50 +136,61 @@ if(isset($_POST['create_loan'])){
           </div>
 
           <hr class="my-4">
-          <button name="create_loan" class="btn btn-primary" type="submit">Create Loan</button>
+          <button name="create_loan" class="btn btn-primary" type="submit" name="create_loan">Create Loan</button>
         </form>
       </div>
     </div>
 
     <div class="col-12 col-lg-5">
-      <div class="card p-4">
-        <h6 class="mb-2">Checkout Rules Reminder</h6>
-        <ul class="small-muted mb-0">
-          <li>Loan must have a borrower_id.</li>
-          <li>Loan must have processed_by_user_id (ADMIN).</li>
-          <li>Each copy can only be actively on loan once.</li>
-          <li>Loan requires at least one LoanItem.</li>
-        </ul>
-      </div>
-    </div>
+<div class="card p-4 mb-3">
+<h6 class="mb-2">Checkout Rules Reminder</h6>
+<ul class="small-muted mb-0">
+<li>Loan must have a borrower_id.</li>
+<li>Loan must have processed_by_user_id (ADMIN).</li>
+<li><strong>Each copy can only be actively on loan once.</strong></li>
+<li>Loan requires at least one LoanItem.</li>
+<li>Copy status automatically changes to ON_LOAN.</li>
+<li>Loan status starts as OPEN and can be CLOSED or CANCELLED.</li>
+</ul>
+</div>
+‌
+<div class="card p-4">
+<h6 class="mb-3">Available Copies</h6>
+<div class="table-responsive">
+<table class="table table-sm mb-0">
+<thead class="table-light">
+<tr>
+<th>Copy ID</th>
+<th>Book Title</th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ($availableCopies as $copy): ?>
+<tr>
+<td><?php echo htmlspecialchars($copy['copy_id']); ?></td>
+<td class="small"><?php echo htmlspecialchars($copy['book_title']); ?></td>
+</tr>
+<?php endforeach; ?>
+<?php if (empty($availableCopies)): ?>
+<tr>
+<td colspan="2" class="text-center small-muted">No copies available</td>
+</tr>
+<?php endif; ?>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+
+
   </div>
 </main>
 
 <script src="../bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
 <script src="../sweetalert/dist/sweetalert2.js"></script>
 
-<script>
-  const loanItemCreateStatus = <?php echo json_encode($loanItemCreateStatus)?>;
-  const loanItemCreateMessage = <?php echo json_encode($loanItemCreateMessage)?>;
-
-  if(loanItemCreateStatus == 'success'){
-    Swal.fire({
-      icon: 'success',
-      title: 'Success',
-      text: loanItemCreateMessage,
-      confirmButtonText: 'Ok'
-    });
-
-  }else(loanItemCreateStatus == 'error'){
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: loanItemCreateMessage,
-          confirmButtonText: 'Ok'
-        });
-      }
-
-</script>
  
 </body>
 </html>

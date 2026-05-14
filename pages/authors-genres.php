@@ -587,9 +587,9 @@ if(authorCreateStatus == 'success'){
 </script>
 
 <script>
-    const editAuthorModal = document.getElementById('editAuthorModal');
+    const editAuthorModel = document.getElementById('editAuthorModal');
 
-    editAuthorModal.addEventListener('show.bs.modal', function(event){
+    editAuthorModel.addEventListener('show.bs.modal', function(event){
     const btn = event.relatedTarget;
     if (!btn) return;
 
@@ -630,9 +630,9 @@ if(authorCreateStatus == 'success'){
 
 
 <script>
-    const editGenreModal = document.getElementById('editGenreModal');
+    const editGenreModel = document.getElementById('editGenreModal');
 
-    editGenreModal.addEventListener('show.bs.modal', function(event){
+    editGenreModel.addEventListener('show.bs.modal', function(event){
     const btn = event.relatedTarget;
     if (!btn) return;
 
